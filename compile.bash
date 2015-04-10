@@ -7,3 +7,4 @@ gccgo -O3 -g -o bin_test_go_gccgo test.go
 go build -o bin_test_go_gc test.go
 mcs -out:bin_test_cs test.cs
 javac test.java
+gfortran-4.8 -O3 -march=native -msse3 -mfpmath=sse --std=f2008 -o bin_test_fortran test.f95
