@@ -43,7 +43,7 @@ typedef struct
 
 static inline Vec2 get_gradient(Noise2DContext* const ctx, const int x, const int y)
 {
-  const int idx = ctx->permutations[x & (CUBE_DIM - 1)] + ctx->permutations[y & (CUBE_DIM - 1)];
+  const int idx = ctx->permutations[x] + ctx->permutations[y];
   return ctx->rgradients[idx & (CUBE_DIM - 1)];
 }
 
@@ -51,12 +51,13 @@ static float noise2d_get(Noise2DContext* const ctx, const float x, const float y
 {
   Vec2 p = { x, y };
   
-  const float x0f = floorf(x);
-  const float y0f = floorf(y);
-  const int x0 = x0f;
-  const int y0 = y0f;
+  // Cheap trick since inputs will always be [0, MAX_INT]
+  const int x0 = (int)x;
+  const int y0 = (int)y;
   const int x1 = x0 + 1;
   const int y1 = y0 + 1;
+  const float x0f = (float)x0;
+  const float y0f = (float)y0;
 
   const Vec2 grad0 = get_gradient(ctx, x0, y0);
   const Vec2 grad1 = get_gradient(ctx, x1, y0);
@@ -83,11 +84,13 @@ static float noise2d_get(Noise2DContext* const ctx, const float x, const float y
 static void init_noise2d(Noise2DContext* const ctx)
 {
   for (int i = 0; i < CUBE_DIM; i++)
+  {
     ctx->rgradients[i] = random_gradient();
+  }
 
   for (int i = 0; i < CUBE_DIM; i++)
   {
-    const int j = rand () % (i + 1);
+    const int j = rand() % (i + 1);
     ctx->permutations[i] = ctx->permutations[j];
     ctx->permutations[j] = i;
   }
@@ -110,11 +113,9 @@ int main(const int argc, const char **argv)
 
     for (int y = 0; y < CUBE_DIM; ++y)
     {
-      const float y_noise_coord = y * 0.1f;
-
       for (int x = 0; x < CUBE_DIM; ++x)
       {
-	const float v = noise2d_get(&n2d, x * 0.1f, y_noise_coord) * 0.5f + 0.5f;
+	const float v = noise2d_get(&n2d, x * 0.1f, y * 0.1f) * 0.5f + 0.5f;
 	pixels[pixel_index] = v;
         ++pixel_index;
       }
