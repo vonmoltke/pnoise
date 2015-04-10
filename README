@@ -1,3 +1,13 @@
+This is a fork of nsf/pnoise because I wanted to play around with it.  I have
+removed Nim, Crystal, Rust, and the LLVM D compiler from the benchmarks because
+I don't feel like messing with manual installs.  Also, my versions for the other
+compilers is whatever the latest is in the LMDE repos, because lazy.
+
+To the original languages I decided to add Fortran.
+
+
+===== Original README =====
+
 Perlin noise benchmark.
 
 Runs perlin noise 256x256 image generation 100 times.
