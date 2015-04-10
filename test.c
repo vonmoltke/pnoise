@@ -5,6 +5,9 @@
 
 #define M_PI 3.1415926535f
 
+#define CUBE_DIM  (1024)
+#define NUM_ITERS  (100)
+
 typedef struct {
         float x, y;
 } Vec2;
@@ -31,15 +34,15 @@ static inline float gradient(Vec2 orig, Vec2 grad, Vec2 p)
 }
 
 typedef struct {
-        Vec2 rgradients[256];
-        int  permutations[256];
+        Vec2 rgradients[CUBE_DIM];
+        int  permutations[CUBE_DIM];
         Vec2 gradients[4];
         Vec2 origins[4];
 } Noise2DContext;
 
 static inline Vec2 get_gradient(Noise2DContext *ctx, int x, int y) {
-	int idx = ctx->permutations[x & 255] + ctx->permutations[y & 255];
-	return ctx->rgradients[idx & 255];
+	int idx = ctx->permutations[x & (CUBE_DIM - 1)] + ctx->permutations[y & (CUBE_DIM - 1)];
+	return ctx->rgradients[idx & (CUBE_DIM - 1)];
 }
 
 static inline void get_gradients(Noise2DContext *ctx, float x, float y) {
@@ -80,10 +83,10 @@ static float noise2d_get(Noise2DContext *ctx, float x, float y)
 
 static void init_noise2d(Noise2DContext *ctx)
 {
-        for (int i = 0; i < 256; i++)
+        for (int i = 0; i < CUBE_DIM; i++)
                 ctx->rgradients[i] = random_gradient();
 
-        for (int i = 0; i < 256; i++) {
+        for (int i = 0; i < CUBE_DIM; i++) {
                 int j = rand() % (i+1);
 		ctx->permutations[i] = ctx->permutations[j];
                 ctx->permutations[j] = i;
@@ -95,24 +98,23 @@ int main(int argc, char **argv)
         srand(time(NULL));
 
         const char *symbols[] = {" ", "░", "▒", "▓", "█", "█"};
-        float *pixels = malloc(sizeof(float) * 256 * 256);
+        float *pixels = malloc(sizeof(float) * CUBE_DIM * CUBE_DIM);
 
         Noise2DContext n2d;
 	init_noise2d(&n2d);
 
-        for (int i = 0; i < 100; i++) {
-                for (int y = 0; y < 256; y++) {
-                        for (int x = 0; x < 256; x++) {
-                                float v = noise2d_get(&n2d, x * 0.1f, y * 0.1f)
-					* 0.5f + 0.5f;
-                                pixels[y*256+x] = v;
+        for (int i = 0; i < NUM_ITERS; i++) {
+                for (int y = 0; y < CUBE_DIM; y++) {
+                        for (int x = 0; x < CUBE_DIM; x++) {
+                                float v = noise2d_get(&n2d, x * 0.1f, y * 0.1f)	* 0.5f + 0.5f;
+                                pixels[y * CUBE_DIM + x] = v;
                         }
                 }
         }
 
-        for (int y = 0; y < 256; y++) {
-                for (int x = 0; x < 256; x++) {
-			int idx = pixels[y*256+x] / 0.2f;
+        for (int y = 0; y < CUBE_DIM; y++) {
+                for (int x = 0; x < CUBE_DIM; x++) {
+			int idx = pixels[y * CUBE_DIM + x] / 0.2f;
                         printf("%s", symbols[idx]);
 		}
                 printf("\n");
