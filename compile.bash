@@ -5,6 +5,5 @@ dmd -ofbin_test_d_dmd -O -boundscheck=off -inline -release test.d
 gdc -Ofast -o bin_test_d_gdc test.d -frelease -finline -march=native -fno-bounds-check
 gccgo -O3 -g -o bin_test_go_gccgo test.go
 go build -o bin_test_go_gc test.go
-rustc --opt-level 3 -o bin_test_rs test.rs
 mcs -out:bin_test_cs test.cs
 javac test.java
